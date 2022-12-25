@@ -41,7 +41,9 @@ app.get('/profile/:id', (req, res) => { profile.handleProfile(req, res, db) });
 app.put('/image', (req, res) => { image.handleImage(req, res, db) });
 app.use('/predict', predictRouter);
 app.get('/', (req, res) => {
-    // res.sendFile(path.join(__dirname, "build", "index.html"));
+    return res.sendFile(path.join(__dirname, "build", "index.html"));
+})
+app.get('/test', (req, res) => {
     res.json("everything is up and running")
 })
 
