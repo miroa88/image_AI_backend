@@ -5,7 +5,13 @@ const http = require('http');
 const predictRouter = require('./routes/predict');
 const bcrypt = require('bcrypt');
 const saltRounds = 10;
-const knex = require('knex')({
+const knex = require('knex');
+const register = require('./controller/register');
+const signin = require('./controller/signin');
+const profile = require('./controller/profile');
+const image = require('./controller/image');
+
+const db = knex({
     client: 'pg',
     connection: {
       host : '127.0.0.1',
@@ -16,37 +22,6 @@ const knex = require('knex')({
     }
   });
 
-knex.select('*').from('users').then( data => {
-    console.log(data);
-})
-
-const database = {
-    users: [
-        {
-            id: '123',
-            name: 'John',
-            email: 'john@gmail.com',
-            password: '12345',
-            entries: 0,
-            joined: new Date()
-        },
-        {
-            id: '124',
-            name: 'Sally',
-            email: 'Sally@gmail.com',
-            password: '12345',
-            entries: 0,
-            joined: new Date()
-        }
-    ],
-    login: [
-        {
-            id: '122',
-            hash: '',
-            email: 'Sally@gmail.com'
-        }
-    ]
-}
 const app = express();
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -60,64 +35,20 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.post('/signin', (req, res) => {
-    bcrypt.compare(req.body.password, database.users[2].password, function(err, result) {
-        if (result && req.body.email === database.users[2].email) {
-            let cloneUser = { ...database.users[2]};
-            delete cloneUser.password;
-            res.json(cloneUser);
-        } else {
-            res.status(400).json('error logging in')
-        }
-    });
-});
+app.post('/signin', (req, res) => { signin.handleSignin(req, res, db, bcrypt) });
 
-app.post('/register', (req, res) => {
-    const {email, name, password} = req.body;
-    bcrypt.hash(password, saltRounds, function(err, hash) {
-        if( err ) {
-            res.json("error while hashing");       
-        } else {
-            database.users.push({
-                id: '125',
-                name: name,
-                email: email,
-                password: hash,
-                entries: 0,
-                joined: new Date()
-            })
-            let cloneUser = { ...database.users[database.users.length - 1] };
-            delete cloneUser.password;
-            res.json(cloneUser);
-        }
-    });
-});
+app.post('/register', (req, res) => { register.handleRegister(req, res, db, bcrypt, saltRounds) });
 
-app.get('/profile/:id', (req, res) => {
-    const { id } = req.params;
-    database.users.forEach(user => {
-        if (user.id === id) {  
-            return res.json(user);
-        } 
-    })
-    res.status(404).json('no such user'); 
-})
+app.get('/profile/:id', (req, res) => { profile.handleProfile(req, res, db) });
 
-app.put('/image', (req, res) => {
-    const { id } = req.body;
-    database.users.forEach(user => {
-        if (user.id === id) {  
-            user.entries++;
-            return res.json({entry: user.entries});
-        } 
-    })
-    res.status(404).json('no such user'); 
-})
+app.put('/image', (req, res) => { image.handleImage(req, res, db) });
 
 app.use('/predict', predictRouter);
+
 app.get('/', (req, res) => {
     return res.sendFile(path.join(__dirname, "build", "index.html"));
 })
+
 const port = process.env.PORT || '8080';
 
 app.set('port', port);
