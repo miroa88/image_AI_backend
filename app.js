@@ -41,7 +41,7 @@ app.get('/profile/:id', (req, res) => { profile.handleProfile(req, res, db) });
 app.put('/image', (req, res) => { image.handleImage(req, res, db) });
 app.use('/predict', predictRouter);
 app.get('/', (req, res) => {
-    return res.sendFile(path.join(__dirname, "build", "index.html"));
+    res.sendFile(path.join(__dirname, "build", "index.html"));
 })
 
 const port = process.env.PORT || '8080';
