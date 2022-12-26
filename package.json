@@ -4,7 +4,7 @@
   "description": "cool app",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js",
+    "start": "node ./app.js",
     "start:dev": "nodemon app.js"
   },
   "engines": {
@@ -14,13 +14,13 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
-    "express": "^4.18.1",
+    "express": "^4.18.2",
     "nodemon": "^2.0.20"
   },
   "dependencies": {
-    "express": "*",
     "bcrypt": "^5.1.0",
     "body-parser": "*",
+    "express": "^4.18.2",
     "clarifai-nodejs-grpc": "^8.0.0",
     "dotenv": "^16.0.2",
     "express-validator": "^6.14.2",
